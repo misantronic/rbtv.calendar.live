@@ -1,0 +1,17 @@
+{
+  "name": "rbtv.live",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/crawl"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "backbone": "^1.2.3",
+    "google-auth-library": "^0.9.7",
+    "googleapis": "^2.1.7",
+    "jsdom": "^8.0.2",
+    "moment": "^2.11.2",
+    "promise": "^7.1.1"
+  }
+}

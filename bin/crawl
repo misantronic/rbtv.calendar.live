@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+var app            = require('../app');
+var googleCalendar = require('../calendar-api');
+
+app.start(function (data) {
+	googleCalendar.start(data);
+});
