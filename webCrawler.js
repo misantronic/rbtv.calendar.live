@@ -18,12 +18,12 @@ function start(callback) {
 				throw err;
 			}
 
-			parse(window, callback);
+			onLoad(window, callback);
 		}
 	);
 }
 
-function parse(window, callback) {
+function onLoad(window, callback) {
 	$ = window.$;
 
 	var shows      = [];
