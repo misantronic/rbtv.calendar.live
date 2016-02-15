@@ -111,14 +111,14 @@ function storeToken(token) {
 function onAuthorized(OAuth2) {
 	auth = OAuth2;
 
-	removeEvents()
+	prepareRemoveEvents()
 		.then(function () {
 			prepareEvents()
 		});
 }
 
 function prepareEvents() {
-	console.log("\n"+ 'Google Calendar API: prepareEvents', JSON.stringify(calendarData) +"\n");
+	console.log("\n" + 'Google Calendar API: prepareEvents', JSON.stringify(calendarData) + "\n");
 
 	// Map calendar data
 	var events = calendarData.map(function (show) {
@@ -127,12 +127,12 @@ function prepareEvents() {
 		var description = show.description;
 		var summary     = show.title + (description ? ' - ' + description : '');
 
-		switch(show.type) {
+		switch (show.type) {
 			case 'live':
-				summary = '[L] '+ summary;
+				summary = '[L] ' + summary;
 				break;
 			case 'premiere':
-				summary = '[N] '+ summary;
+				summary = '[N] ' + summary;
 				break;
 		}
 
@@ -156,9 +156,9 @@ function prepareEvents() {
 }
 
 function addEvents(events, i) {
-	if(events[i]) {
-		addEvent(events[i]).done(function () {
-			addEvents(events, i+1);
+	if (events[i]) {
+		addEvent(events[i]).then(function () {
+			addEvents(events, i + 1);
 		})
 	} else {
 		console.log('Finished.');
@@ -187,8 +187,8 @@ function addEvent(obj) {
 	});
 }
 
-function removeEvents() {
-	console.log('Google Calendar API: removeEvents');
+function prepareRemoveEvents() {
+	console.log('Google Calendar API: prepareRemoveEvents');
 
 	return new Promise(function (resolve, reject) {
 		calendar.events.list({
@@ -209,21 +209,37 @@ function removeEvents() {
 			if (items.length === 0) {
 				resolve();
 			} else {
-				items.forEach(function (event) {
-					calendar.events.delete({
+				var events = items.map(function (event) {
+					return {
 						auth: auth,
 						calendarId: calendarId,
 						eventId: event.id
-					}, function (err, response) {
-						if (!response) {
-							deleteCount++;
-
-							if (deleteCount === items.length) {
-								resolve();
-							}
-						}
-					});
+					};
 				});
+
+				removeEvents(events, 0, resolve);
+			}
+		});
+	});
+}
+
+function removeEvents(events, i, callback) {
+	if (events[i]) {
+		removeEvent(events[i]).then(function () {
+			removeEvents(events, i + 1, callback);
+		})
+	} else {
+		callback();
+	}
+}
+
+function removeEvent(obj) {
+	return new Promise(function (resolve, reject) {
+		calendar.events.delete(obj, function (err, response) {
+			if (!response) {
+				resolve();
+			} else {
+				reject();
 			}
 		});
 	});
