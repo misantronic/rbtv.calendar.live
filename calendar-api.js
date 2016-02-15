@@ -113,44 +113,76 @@ function onAuthorized(OAuth2) {
 
 	removeEvents()
 		.then(function () {
-			addEvents()
+			prepareEvents()
 		});
 }
 
-function addEvents() {
-	console.log('Google Calendar API: addEvents', JSON.stringify(calendarData));
+function prepareEvents() {
+	console.log("\n"+ 'Google Calendar API: prepareEvents', JSON.stringify(calendarData) +"\n");
 
-	// Events resource: https://developers.google.com/google-apps/calendar/v3/reference/events#resource
-	calendarData.forEach(function (day) {
-		day.shows.forEach(function (show) {
-			var startTime   = show.datetime.format();
-			var endTime     = show.datetime.clone().add(1, 'hour').format();
-			var description = show.description;
-			var summary     = show.title + (description ? ' - '+ description : '');
+	// Map calendar data
+	var events = calendarData.map(function (show) {
+		var startTime   = show.startTime.format();
+		var endTime     = show.endTime.format();
+		var description = show.description;
+		var summary     = show.title + (description ? ' - ' + description : '');
 
-			calendar.events.insert({
-				auth: auth,
-				calendarId: calendarId,
-				resource: {
-					start: {
-						dateTime: startTime
-					},
-					end: {
-						dateTime: endTime
-					},
-					description: description,
-					summary: summary
-				}
-			}, function (err, response) {
-				if (err) {
-					console.log('The API returned an error: ' + err);
-					return;
-				}
+		switch(show.type) {
+			case 'live':
+				summary = '[L] '+ summary;
+				break;
+			case 'premiere':
+				summary = '[N] '+ summary;
+				break;
+		}
 
-				if(response.status === 'confirmed') {
-					console.log('- Event added: ', response.summary);
-				}
-			});
+		return {
+			auth: auth,
+			calendarId: calendarId,
+			resource: {
+				start: {
+					dateTime: startTime
+				},
+				end: {
+					dateTime: endTime
+				},
+				description: description,
+				summary: summary
+			}
+		};
+	});
+
+	addEvents(events, 0);
+}
+
+function addEvents(events, i) {
+	if(events[i]) {
+		addEvent(events[i]).done(function () {
+			addEvents(events, i+1);
+		})
+	} else {
+		console.log('Finished.');
+	}
+}
+
+function addEvent(obj) {
+	return new Promise(function (resolve, reject) {
+		calendar.events.insert(obj, function (err, response) {
+			if (err) {
+				console.log('The API returned an error: ' + err);
+
+				reject();
+				return;
+			}
+
+			if (response.status === 'confirmed') {
+				console.log('- Event added: ', response.summary);
+
+				resolve();
+				return;
+			}
+
+			reject();
 		});
 	});
 }

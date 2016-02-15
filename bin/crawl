@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-var app            = require('../app');
+var webCrawler            = require('../webCrawler');
 var googleCalendar = require('../calendar-api');
 
-app.start(function (data) {
+webCrawler.start(function (data) {
 	googleCalendar.start(data);
 });
