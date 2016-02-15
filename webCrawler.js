@@ -37,6 +37,9 @@ function onLoad(window, callback) {
 		var dateString = $day.find('.dateHeader > span').text();
 		var date       = moment(dateString, 'DD. MMM YYYY');
 
+		// Remove News
+		$day.find('.showDetails > h4:contains(RB News)').closest('.show').remove();
+
 		// Look for live-events
 		$day.find('.show .live').each(function (j, badge) {
 			shows.push(
