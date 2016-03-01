@@ -171,7 +171,7 @@ function addEvent(obj) {
 			if (err) {
 				console.log('The API returned an error: ' + err);
 
-				reject();
+				resolve();
 				return;
 			}
 
