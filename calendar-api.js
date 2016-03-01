@@ -193,6 +193,7 @@ function prepareRemoveEvents() {
 	return new Promise(function (resolve, reject) {
 		calendar.events.list({
 			auth: auth,
+			singleEvents: true,
 			calendarId: calendarId
 		}, function (err, response) {
 			if (err) {
@@ -201,8 +202,7 @@ function prepareRemoveEvents() {
 				return;
 			}
 
-			var items       = response.items;
-			var deleteCount = 0;
+			var items = response.items;
 
 			console.log('- Removing items:', items.length);
 
