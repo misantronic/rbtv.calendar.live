@@ -1,8 +1,8 @@
 var GoogleAuth = require('./GoogleAuth');
 var Calendar   = require('./Calendar');
 
-function CalendarManager() {
-
+function CalendarManager(calendarId) {
+	this.calendarId = calendarId;
 }
 
 CalendarManager.prototype.init = function (data) {
@@ -20,7 +20,7 @@ CalendarManager.prototype._onAuthorized = function(OAuth2) {
 };
 
 CalendarManager.prototype._setupCalendar = function () {
-	this.calendar = new Calendar('5aj6musne0k96vbqlu43p8lgs0@group.calendar.google.com', this.OAuth2);
+	this.calendar = new Calendar(this.calendarId, this.OAuth2);
 	this.calendar.removeAllEvents().then(this._onEventsRemoved.bind(this));
 };
 
