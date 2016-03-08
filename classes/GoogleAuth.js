@@ -15,14 +15,26 @@ function GoogleAuth() {
 GoogleAuth.prototype.start = function (callback) {
 	// Load client secrets from a local file.
 	fs.readFile(clientSecret, function (err, content) {
+		var credentials;
+
 		if (err) {
-			console.log('Error loading client secret file: ' + err);
-			return;
+			// Get credentials from env vars
+			credentials = {
+				installed: {
+					client_secret: process.env.client_secret,
+					client_id: process.env.client_id,
+					redirect_uris: [
+						process.env.redirect_uri
+					]
+				}
+			}
+		} else {
+			credentials = JSON.parse(content);
 		}
 
 		// Authorize a client with the loaded credentials, then call the
 		// Google Calendar API.
-		this._authorize(JSON.parse(content), callback);
+		this._authorize(credentials, callback);
 	}.bind(this));
 };
 
