@@ -12,7 +12,7 @@ function Calendar(calendarId, auth) {
 Calendar.prototype.removeAllEvents = function () {
 	console.log('Google Calendar API: removeAllEvents');
 
-	//this.rl = readline.createInterface(process.stdin, process.stdout);
+	this.rl = readline.createInterface(process.stdin, process.stdout);
 
 	return new Promise(function (resolve, reject) {
 		calendar.events.list({
@@ -119,9 +119,9 @@ Calendar.prototype._removeEvent = function (obj) {
 				readline.clearLine(this.rl.output);
 				readline.cursorTo(this.rl.output, 0);
 
-				//var p = Math.round(this._deleteCounter / this._eventsTodelete * 100);
+				var p = Math.round(this._deleteCounter / this._eventsTodelete * 100);
 
-				//this.rl.output.write('- '+ p.toString() +"%");
+				this.rl.output.write(p.toString() +"%");
 
 				resolve();
 			} else {
