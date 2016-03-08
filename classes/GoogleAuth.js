@@ -1,12 +1,16 @@
-var fs           = require('fs');
-var readline     = require('readline');
-var googleAuth   = require('google-auth-library');
+var fs         = require('fs');
+var readline   = require('readline');
+var googleAuth = require('google-auth-library');
+var redis      = require("redis");
+
 var clientSecret = './credentials/client_secret.json';
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/calendar-nodejs-quickstart.json
-var SCOPES     = ['https://www.googleapis.com/auth/calendar'];
-var TOKEN_DIR  = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
+var SCOPES       = ['https://www.googleapis.com/auth/calendar'];
+
+var redisClient = redis.createClient();
+
+redisClient.on("error", function (err) {
+	console.log("RedisError " + err);
+});
 
 function GoogleAuth() {
 
@@ -52,8 +56,8 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
 
 	this.oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
-	// Check if we have previously stored a token.
-	fs.readFile(TOKEN_PATH, function (err, token) {
+	// Read token from redis
+	redisClient.get('token', function (err, token) {
 		if (err) {
 			this._getNewToken(callback);
 		} else {
@@ -72,7 +76,7 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
  * @private
  */
 GoogleAuth.prototype._getNewToken = function (callback) {
-	if(process.env.client_code) {
+	if (process.env.client_code) {
 		this._applyCode(process.env.client_code, callback);
 	} else {
 		var authUrl = this.oauth2Client.generateAuthUrl({
@@ -117,15 +121,11 @@ GoogleAuth.prototype._applyCode = function (code, callback) {
  * @private
  */
 GoogleAuth.prototype._storeToken = function (token) {
-	try {
-		fs.mkdirSync(TOKEN_DIR);
-	} catch (err) {
-		if (err.code != 'EEXIST') {
-			throw err;
-		}
-	}
-	fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-	console.log('Token stored to ' + TOKEN_PATH);
+	var strToken = JSON.stringify(token);
+
+	client.set("token", strToken, redis.print);
+
+	console.log('Token stored to redis.', strToken);
 };
 
 module.exports = GoogleAuth;
