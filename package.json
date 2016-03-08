@@ -1,7 +1,7 @@
 {
-  "name": "rbtv.live",
+  "name": "rbtv.calendar.live",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "scripts": {
     "start": "node ./bin/crawl"
   },
