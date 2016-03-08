@@ -72,21 +72,22 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
  * @private
  */
 GoogleAuth.prototype._getNewToken = function (callback) {
-	var authUrl = this.oauth2Client.generateAuthUrl({
-		access_type: 'offline',
-		scope: SCOPES
-	});
-
-	console.log('Authorize this app by visiting this url: ', authUrl);
-
-	var rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout
-	});
-
 	if(process.env.client_code) {
 		this._applyCode(process.env.client_code, callback);
 	} else {
+		var authUrl = this.oauth2Client.generateAuthUrl({
+			access_type: 'offline',
+			scope: SCOPES
+		});
+
+		console.log('Authorize this app by visiting this url: ', authUrl);
+
+		var rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
+
 		rl.question('Enter the code from that page here: ', function (code) {
 			rl.close();
 			this._applyCode(code, callback);
