@@ -60,7 +60,7 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
 
 	// Read token from redis
 	redis.get('token', function (err, token) {
-		if (err) {
+		if (!token) {
 			this._getNewToken(callback);
 		} else {
 			this.oauth2Client.credentials = JSON.parse(token);
@@ -125,7 +125,7 @@ GoogleAuth.prototype._applyCode = function (code, callback) {
 GoogleAuth.prototype._storeToken = function (token) {
 	var strToken = JSON.stringify(token);
 
-	client.set("token", strToken, redis.print);
+	redis.set("token", strToken, redis.print);
 
 	console.log('Token stored to redis.', strToken);
 };
