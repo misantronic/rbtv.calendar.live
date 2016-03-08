@@ -1,14 +1,14 @@
 var fs         = require('fs');
 var readline   = require('readline');
 var googleAuth = require('google-auth-library');
-var redis      = require("redis");
 
 var clientSecret = './credentials/client_secret.json';
 var SCOPES       = ['https://www.googleapis.com/auth/calendar'];
 
-var redisClient = redis.createClient(process.env.redis_port, process.env.redis_host);
+var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+var redis = require("redis").createClient(rtg.port, rtg.hostname);
 
-redisClient.on("error", function (err) {
+redis.on("error", function (err) {
 	console.log("RedisError " + err);
 });
 
@@ -57,7 +57,7 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
 	this.oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
 	// Read token from redis
-	redisClient.get('token', function (err, token) {
+	redis.get('token', function (err, token) {
 		if (err) {
 			this._getNewToken(callback);
 		} else {
