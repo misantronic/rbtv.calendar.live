@@ -49,15 +49,16 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
 	var clientId     = credentials.installed.client_id;
 	var redirectUrl  = credentials.installed.redirect_uris[0];
 	var auth         = new googleAuth();
-	var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+
+	this.oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
 	// Check if we have previously stored a token.
 	fs.readFile(TOKEN_PATH, function (err, token) {
 		if (err) {
-			this._getNewToken(oauth2Client, callback);
+			this._getNewToken(callback);
 		} else {
-			oauth2Client.credentials = JSON.parse(token);
-			callback(oauth2Client);
+			this.oauth2Client.credentials = JSON.parse(token);
+			callback(this.oauth2Client);
 		}
 	}.bind(this));
 };
@@ -66,13 +67,12 @@ GoogleAuth.prototype._authorize = function (credentials, callback) {
  * Get and store new token after prompting for user authorization, and then
  * execute the given callback with the authorized OAuth2 client.
  *
- * @param {google.auth.OAuth2} oauth2Client The OAuth2 client to get token for.
  * @param {Function} callback The callback to call with the authorized
  *     client.
  * @private
  */
-GoogleAuth.prototype._getNewToken = function (oauth2Client, callback) {
-	var authUrl = oauth2Client.generateAuthUrl({
+GoogleAuth.prototype._getNewToken = function (callback) {
+	var authUrl = this.oauth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: SCOPES
 	});
@@ -84,20 +84,28 @@ GoogleAuth.prototype._getNewToken = function (oauth2Client, callback) {
 		output: process.stdout
 	});
 
-	rl.question('Enter the code from that page here: ', function (code) {
-		rl.close();
-		oauth2Client.getToken(code, function (err, token) {
-			if (err) {
-				console.log('Error while trying to retrieve access token', err);
-				return;
-			}
-
-			oauth2Client.credentials = token;
-
-			this._storeToken(token);
-
-			callback(oauth2Client);
+	if(process.env.client_code) {
+		this._applyCode(process.env.client_code, callback);
+	} else {
+		rl.question('Enter the code from that page here: ', function (code) {
+			rl.close();
+			this._applyCode(code, callback);
 		}.bind(this));
+	}
+};
+
+GoogleAuth.prototype._applyCode = function (code, callback) {
+	this.oauth2Client.getToken(code, function (err, token) {
+		if (err) {
+			console.log('Error while trying to retrieve access token', err);
+			return;
+		}
+
+		this.oauth2Client.credentials = token;
+
+		this._storeToken(token);
+
+		callback(this.oauth2Client);
 	}.bind(this));
 };
 
