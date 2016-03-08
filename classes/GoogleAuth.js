@@ -6,7 +6,7 @@ var redis      = require("redis");
 var clientSecret = './credentials/client_secret.json';
 var SCOPES       = ['https://www.googleapis.com/auth/calendar'];
 
-var redisClient = redis.createClient(10890);
+var redisClient = redis.createClient(10890, 'redistogo:4b881931b5b886ffdfd2c8b394cac2b0@grouper.redistogo.com');
 
 redisClient.on("error", function (err) {
 	console.log("RedisError " + err);
