@@ -5,8 +5,7 @@
   "scripts": {
     "start": "node ./bin/crawl"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "google-auth-library": "^0.9.7",
     "googleapis": "^2.1.7",
     "jsdom": "^8.0.2",
