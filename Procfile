@@ -1,1 +1,1 @@
-web: node bin/crawl.js
+web: node bin/crawl
