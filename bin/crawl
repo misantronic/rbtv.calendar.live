@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-var webCrawler            = require('../webCrawler');
-var googleCalendar = require('../calendar-api');
+var WochenplanCrawler = require('../classes/WochenplanCrawler');
+var CalendarManager   = require('../classes/CalendarManager');
 
-webCrawler.start(function (data) {
-	googleCalendar.start(data);
-});
+var crawler = new WochenplanCrawler();
+
+crawler.onData = function(data) {
+	var calendarManager = new CalendarManager();
+
+	calendarManager.init(data);
+};
+
+crawler.start();

@@ -1,15 +1,22 @@
-var jsdom    = require("jsdom");
-var moment   = require('moment');
-var Backbone = require('backbone');
+var jsdom  = require("jsdom");
+var moment = require('moment');
 
-require('./classes/moment_locale_de');
+require('./../lib/moment_locale_de');
 
 var url = "http://www.rocketbeans.tv/wochenplan/";
 var $;
 
-console.log('Crawling data from', url);
+function WochenplanCrawler() {
 
-function start(callback) {
+}
+
+WochenplanCrawler.prototype.onData = function() {};
+
+WochenplanCrawler.prototype.start = function () {
+	console.log('Crawling data from', url);
+
+	var onData = this.onData;
+
 	jsdom.env(
 		url,
 		["http://code.jquery.com/jquery.js"],
@@ -18,12 +25,14 @@ function start(callback) {
 				throw err;
 			}
 
-			onLoad(window, callback);
-		}
+			this._onLoad(window, function (data) {
+				onData(data);
+			});
+		}.bind(this)
 	);
-}
+};
 
-function onLoad(window, callback) {
+WochenplanCrawler.prototype._onLoad = function(window, callback) {
 	$ = window.$;
 
 	var shows      = [];
@@ -43,22 +52,22 @@ function onLoad(window, callback) {
 		// Look for live-events
 		$day.find('.show .live').each(function (j, badge) {
 			shows.push(
-				parseShow('live', date, $(badge).closest('.show'))
+				this._parseShow('live', date, $(badge).closest('.show'))
 			);
-		});
+		}.bind(this));
 
 		// Look for premiere-events
 		$day.find('.show .premiere').each(function (j, badge) {
 			shows.push(
-				parseShow('premiere', date, $(badge).closest('.show'))
+				this._parseShow('premiere', date, $(badge).closest('.show'))
 			);
-		});
-	});
+		}.bind(this));
+	}.bind(this));
 
 	callback(shows);
-}
+};
 
-function parseShow(type, date, $show) {
+WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
 	var startTime   = moment(date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text(), 'YYYY-MM-DD HH:mm');
 	var title       = $show.find('.showDetails > h4').text();
 	var description = $show.find('.game').text();
@@ -87,8 +96,6 @@ function parseShow(type, date, $show) {
 		endTime: endTime,
 		type: type
 	};
-}
-
-module.exports = {
-	start: start
 };
+
+module.exports = WochenplanCrawler;
