@@ -35,6 +35,9 @@ WochenplanCrawler.prototype.start = function () {
 WochenplanCrawler.prototype._onLoad = function(window, callback) {
 	$ = window.$;
 
+	// Open all daytimes
+	$('.dayDividerHeader:not(.open)').click();
+
 	var shows      = [];
 	var $scheduler = $('#schedule');
 	var $days      = $scheduler.find('.day');
