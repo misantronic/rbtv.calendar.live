@@ -55,8 +55,8 @@ Calendar.prototype.insertEvents = function (data) {
 
 	// Map calendar data
 	var events = data.map(function (show) {
-		var startTime   = show.startTime.subtract(1, 'hour').format();
-		var endTime     = show.endTime.subtract(1, 'hour').format();
+		var startTime   = show.startTime.format();
+		var endTime     = show.endTime.format();
 		var description = show.description;
 		var summary     = show.title + (description ? ' - ' + description : '');
 
