@@ -10,6 +10,7 @@
     "googleapis": "^2.1.7",
     "jsdom": "^8.0.2",
     "moment": "^2.11.2",
+    "moment-timezone": "^0.5.3",
     "promise": "^7.1.1",
     "redis": "^2.5.0-1"
   },

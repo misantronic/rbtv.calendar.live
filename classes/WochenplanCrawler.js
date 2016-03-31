@@ -2,6 +2,7 @@ var jsdom  = require("jsdom");
 var moment = require('moment');
 
 require('./../lib/moment_locale_de');
+require('../node_modules/moment-timezone/builds/moment-timezone-with-data-2010-2020');
 
 var url = "http://www.rocketbeans.tv/wochenplan/";
 var $;
@@ -75,6 +76,8 @@ WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
 	var title       = $show.find('.showDetails > h4').text();
 	var description = $show.find('.game').text();
 	var duration    = $show.find('.showDuration').text();
+
+	startTime.tz('Europe/Berlin');
 
 	// Calculate duration in minutes
 	var durationMinutes = 0;
