@@ -59,13 +59,15 @@ Calendar.prototype.insertEvents = function (data) {
 		var endTime     = show.endTime.format();
 		var description = show.description;
 		var summary     = show.title + (description ? ' - ' + description : '');
+		var colorId     = 9;
 
 		switch (show.type) {
 			case 'live':
-				summary = '[L] ' + summary;
+				// summary = '[L] ' + summary;
+                colorId = 11;
 				break;
 			case 'premiere':
-				summary = '[N] ' + summary;
+				colorId = 9;
 				break;
 		}
 
@@ -80,7 +82,8 @@ Calendar.prototype.insertEvents = function (data) {
 					dateTime: endTime
 				},
 				description: description,
-				summary: summary
+				summary: summary,
+                colorId: colorId
 			}
 		};
 	}.bind(this));

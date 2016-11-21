@@ -1,14 +1,16 @@
 var GoogleAuth = require('./GoogleAuth');
 var Calendar   = require('./Calendar');
 
+var googleAuth;
+
 function CalendarManager(calendarId) {
 	this.calendarId = calendarId;
 }
 
 CalendarManager.prototype.init = function (data) {
-	this.data = data;
+	this.data = data || this.data;
 
-	var googleAuth = new GoogleAuth();
+	googleAuth = new GoogleAuth();
 
 	googleAuth.start(this._onAuthorized.bind(this));
 };
@@ -21,7 +23,11 @@ CalendarManager.prototype._onAuthorized = function(OAuth2) {
 
 CalendarManager.prototype._setupCalendar = function () {
 	this.calendar = new Calendar(this.calendarId, this.OAuth2);
-	this.calendar.removeAllEvents().then(this._onEventsRemoved.bind(this));
+	this.calendar.removeAllEvents()
+		.then(this._onEventsRemoved.bind(this), function () {
+			googleAuth.resetToken();
+			this.init();
+		}.bind(this));
 };
 
 CalendarManager.prototype._insertEvents = function () {

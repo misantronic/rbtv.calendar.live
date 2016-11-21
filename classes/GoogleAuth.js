@@ -44,6 +44,10 @@ GoogleAuth.prototype.start = function (callback) {
 	}.bind(this));
 };
 
+GoogleAuth.prototype.resetToken = function () {
+	redis.set("token", "", redis.print);
+};
+
 /**
  *
  * @param credentials
