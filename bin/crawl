@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-var moment            = require('moment');
 var WochenplanCrawler = require('../classes/WochenplanCrawler');
 var CalendarManager   = require('../classes/CalendarManager');
 
