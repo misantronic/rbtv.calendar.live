@@ -47,10 +47,10 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
 		var $day = $(day);
 
 		// Look for date
-		var dateString = $day.find('.dateHeader > span').text();
-		var date       = moment(dateString, 'DD. MMM YYYY');
+		var dateString = $day.find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
+        var date       = moment(dateString, 'DD. MMM YYYY');
 
-		// Remove News
+        // Remove News
 		$day.find('.showDetails > h4:contains(RB News)').closest('.show').remove();
 
 		// Look for live-events
