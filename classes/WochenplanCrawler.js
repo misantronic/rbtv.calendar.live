@@ -4,7 +4,7 @@ var moment = require('moment');
 require('./../lib/moment_locale_de');
 require('../node_modules/moment-timezone/builds/moment-timezone-with-data-2010-2020');
 
-var url = "http://www.rocketbeans.tv/wochenplan/";
+var url = "https://www.rocketbeans.tv/wochenplan/?details=1";
 var $;
 
 function WochenplanCrawler() {
@@ -49,9 +49,6 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
 		// Look for date
 		var dateString = $day.find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
         var date       = moment(dateString, 'DD. MMM YYYY');
-
-        // Remove News
-		$day.find('.showDetails > h4:contains(RB News)').closest('.show').remove();
 
 		// Look for live-events
 		$day.find('.show .live').each(function (j, badge) {
