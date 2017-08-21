@@ -49,7 +49,7 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
             if ($day.hasClass('blindfill')) return true;
 
             // Look for date
-            var date = moment(dateString, 'DD. MMM YYYY').add($day.index());
+            var date = moment(dateString, 'DD. MMM YYYY').add($day.index(), 'days');
 
             // Look for live-events
             $day.find('.show .live').each(
