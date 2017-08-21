@@ -84,6 +84,7 @@ Calendar.prototype.insertEvents = function(data) {
             return {
                 auth: this.auth,
                 calendarId: this.calendarId,
+                supportsAttachments: true,
                 resource: {
                     start: {
                         dateTime: startTime
@@ -94,7 +95,6 @@ Calendar.prototype.insertEvents = function(data) {
                     description: description,
                     summary: summary,
                     colorId: colorId,
-                    supportsAttachments: true,
                     attachments: [{ fileUrl: image, title: 'thumbnail' }]
                 }
             };
