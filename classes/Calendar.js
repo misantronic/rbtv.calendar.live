@@ -67,7 +67,7 @@ Calendar.prototype.insertEvents = function(data) {
             var endTime = show.endTime.format();
             var description = show.description;
             var summary = show.title + (description ? ' - ' + description : '');
-            var image = show.image;
+            var image = 'https://cdn.pixabay.com/photo/2013/04/24/17/05/mountains-106880_1280.jpg' || show.image;
             var colorId = 9;
 
             switch (show.type) {
