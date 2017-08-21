@@ -4,7 +4,7 @@ var moment = require('moment');
 require('./../lib/moment_locale_de');
 require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
-var url = "https://www.rocketbeans.tv/wochenplan/?details=1";
+var url = "https://www.rocketbeans.tv/wochenplan/";
 var $;
 
 function WochenplanCrawler() {
@@ -39,7 +39,7 @@ WochenplanCrawler.prototype._onLoad = function (window, callback) {
 	$('.dayDividerHeader:not(.open)').click();
 
 	var shows = [];
-	var $scheduler = $('#schedule');
+	var $scheduler = $('.weekInner');
 	var $days = $scheduler.find('.day');
 
 	$days.each(function (i, day) {
@@ -91,8 +91,6 @@ WochenplanCrawler.prototype._parseShow = function (type, date, $show) {
 	var durationTotal = durationHours * 60 + durationMinutes;
 
 	var endTime = startTime.clone().add(durationTotal, 'minutes');
-
-	console.log('show', $show.html());
 
 	return {
 		title: title,
