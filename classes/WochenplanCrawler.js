@@ -39,7 +39,8 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
 
     var shows = [];
     var $scheduler = $('.weekInner');
-    var $days = $scheduler.find('.day');
+	var $days = $scheduler.find('.day');
+	var dateString = $days.first().find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
 
     $days.each(
         function(i, day) {
@@ -48,8 +49,7 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
             if ($day.hasClass('blindfill')) return true;
 
             // Look for date
-            // var dateString = $day.find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
-            var date = moment().startOf('week').add($day.index());
+            var date = moment(dateString, 'DD. MMM YYYY').add($day.index());
 
             // Look for live-events
             $day.find('.show .live').each(
