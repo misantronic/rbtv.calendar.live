@@ -2,7 +2,7 @@ var jsdom = require("jsdom");
 var moment = require('moment');
 
 require('./../lib/moment_locale_de');
-require('../node_modules/moment-timezone/builds/moment-timezone-with-data-2010-2020');
+require('moment-timezone/builds/moment-timezone-with-data-2010-2020');
 
 var url = "https://www.rocketbeans.tv/wochenplan/?details=1";
 var $;
