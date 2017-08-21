@@ -80,7 +80,7 @@ WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
     var title = $show.find('.showDetails > h4').text();
     var description = $show.find('.game').text();
     var duration = $show.find('.showDuration').text();
-    var image = $show.find('.scheduleThumbnail > img').attr('src').replace(/^\/\//, 'https://');
+    var image = $show.find('.scheduleThumbnail > img').attr('src');
 
     startTime.tz('Europe/Berlin');
 
