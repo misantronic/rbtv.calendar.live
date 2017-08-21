@@ -1,4 +1,4 @@
-var jsdom  = require("jsdom");
+var jsdom = require("jsdom");
 var moment = require('moment');
 
 require('./../lib/moment_locale_de');
@@ -11,7 +11,7 @@ function WochenplanCrawler() {
 
 }
 
-WochenplanCrawler.prototype.onData = function() {};
+WochenplanCrawler.prototype.onData = function () {};
 
 WochenplanCrawler.prototype.start = function () {
 	console.log('Crawling data from', url);
@@ -19,8 +19,7 @@ WochenplanCrawler.prototype.start = function () {
 	var onData = this.onData;
 
 	jsdom.env(
-		url,
-		["http://code.jquery.com/jquery.js"],
+		url, ["http://code.jquery.com/jquery.js"],
 		function (err, window) {
 			if (err) {
 				throw err;
@@ -33,22 +32,22 @@ WochenplanCrawler.prototype.start = function () {
 	);
 };
 
-WochenplanCrawler.prototype._onLoad = function(window, callback) {
+WochenplanCrawler.prototype._onLoad = function (window, callback) {
 	$ = window.$;
 
 	// Open all daytimes
 	$('.dayDividerHeader:not(.open)').click();
 
-	var shows      = [];
+	var shows = [];
 	var $scheduler = $('#schedule');
-	var $days      = $scheduler.find('.day');
+	var $days = $scheduler.find('.day');
 
 	$days.each(function (i, day) {
 		var $day = $(day);
 
 		// Look for date
 		var dateString = $day.find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
-        var date       = moment(dateString, 'DD. MMM YYYY');
+		var date = moment(dateString, 'DD. MMM YYYY');
 
 		// Look for live-events
 		$day.find('.show .live').each(function (j, badge) {
@@ -68,17 +67,18 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
 	callback(shows);
 };
 
-WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
-	var startTime   = moment(date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text(), 'YYYY-MM-DD HH:mm');
-	var title       = $show.find('.showDetails > h4').text();
+WochenplanCrawler.prototype._parseShow = function (type, date, $show) {
+	var startTime = moment(date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text(), 'YYYY-MM-DD HH:mm');
+	var title = $show.find('.showDetails > h4').text();
 	var description = $show.find('.game').text();
-	var duration    = $show.find('.showDuration').text();
+	var duration = $show.find('.showDuration').text();
+	var image = $show.find('.scheduleThumbnail > img').attr('src');
 
 	startTime.tz('Europe/Berlin');
 
 	// Calculate duration in minutes
 	var durationMinutes = 0;
-	var durationHours   = 0;
+	var durationHours = 0;
 
 	duration.replace(/(\d+) Std\./i, function (str, $1) {
 		durationHours = parseInt($1)
@@ -97,7 +97,8 @@ WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
 		description: description,
 		startTime: startTime,
 		endTime: endTime,
-		type: type
+		type: type,
+		image: image
 	};
 };
 
