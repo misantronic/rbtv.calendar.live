@@ -79,7 +79,7 @@ Calendar.prototype.insertEvents = function(data) {
                     summary = '[N] ' + summary;
                     colorId = 9;
                     break;
-			}
+            }
 
             return {
                 auth: this.auth,
@@ -95,7 +95,7 @@ Calendar.prototype.insertEvents = function(data) {
                     summary: summary,
                     colorId: colorId,
                     supportsAttachments: true,
-                    attachments: [{ fileUrl: image, title: 'thumbnail'  }]
+                    attachments: [{ fileUrl: image, title: 'thumbnail' }]
                 }
             };
         }.bind(this)
