@@ -1,1 +1,1 @@
-web: node bin/crawl
+worker: node bin/crawl
