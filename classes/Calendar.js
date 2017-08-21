@@ -94,7 +94,8 @@ Calendar.prototype.insertEvents = function(data) {
                     description: description,
                     summary: summary,
                     colorId: colorId,
-                    attachments: [{ fileUrl: image }]
+                    supportsAttachments: true,
+                    attachments: [{ fileUrl: image, title: 'thumbnail'  }]
                 }
             };
         }.bind(this)
