@@ -205,7 +205,7 @@ Calendar.prototype._addEvent = function(obj) {
                     }
 
                     if (response.status === 'confirmed') {
-                        console.log('- Event added: ', response);
+                        console.log('- Event added: ', response.summary);
 
                         resolve();
                         return;
