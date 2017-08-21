@@ -36,7 +36,7 @@ WochenplanCrawler.prototype._onLoad = function (window, callback) {
 	$ = window.$;
 
 	// Open all daytimes
-	$('.dayDividerHeader:not(.open)').click();
+	// $('.dayDividerHeader:not(.open)').click();
 
 	var shows = [];
 	var $scheduler = $('.weekInner');
@@ -68,7 +68,9 @@ WochenplanCrawler.prototype._onLoad = function (window, callback) {
 };
 
 WochenplanCrawler.prototype._parseShow = function (type, date, $show) {
-	var startTime = moment(date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text(), 'YYYY-MM-DD HH:mm');
+	$show.find('.scheduleTime > span').remove();
+
+	var startTime = moment(date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text().trim(), 'YYYY-MM-DD HH:mm');
 	var title = $show.find('.showDetails > h4').text();
 	var description = $show.find('.game').text();
 	var duration = $show.find('.showDuration').text();
