@@ -92,7 +92,7 @@ WochenplanCrawler.prototype._parseShow = function (type, date, $show) {
 
 	var endTime = startTime.clone().add(durationTotal, 'minutes');
 
-	console.log('image', image);
+	console.log('show', show.html());
 
 	return {
 		title: title,
