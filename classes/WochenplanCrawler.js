@@ -24,14 +24,14 @@ WochenplanCrawler.prototype.start = function() {
     var onLoadWeek1 = data => {
         dataWeek1 = data;
 
-        if (dataLoadedWeek2) {
+        if (dataWeek2) {
             finish();
         }
     };
     var onLoadWeek2 = data => {
         dataWeek2 = data;
 
-        if (dataLoadedWeek1) {
+        if (dataWeek1) {
             finish();
         }
     };
