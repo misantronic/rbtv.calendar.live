@@ -4,7 +4,8 @@ var moment = require('moment');
 require('./../lib/moment_locale_de');
 require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
-var url = 'https://www.rocketbeans.tv/wochenplan/';
+var urlWeek1 = 'https://www.rocketbeans.tv/wochenplan/';
+var urlWeek2 = 'https://www.rocketbeans.tv/wochenplan/?nextWeek=1';
 var $;
 
 function WochenplanCrawler() {}
@@ -12,12 +13,31 @@ function WochenplanCrawler() {}
 WochenplanCrawler.prototype.onData = function() {};
 
 WochenplanCrawler.prototype.start = function() {
-    console.log('Crawling data from', url);
+    console.log('Crawling data from', urlWeek1);
 
     var onData = this.onData;
+    var dataWeek1;
+    var dataWeek2;
+
+    var finish = () => onData([].concat(dataWeek1, dataWeek2));
+
+    var onLoadWeek1 = data => {
+        dataWeek1 = data;
+
+        if (dataLoadedWeek2) {
+            finish();
+        }
+    };
+    var onLoadWeek2 = data => {
+        dataWeek2 = data;
+
+        if (dataLoadedWeek1) {
+            finish();
+        }
+    };
 
     jsdom.env(
-        url,
+        urlWeek1,
         ['http://code.jquery.com/jquery.js'],
         function(err, window) {
             if (err) {
@@ -25,7 +45,21 @@ WochenplanCrawler.prototype.start = function() {
             }
 
             this._onLoad(window, function(data) {
-                onData(data);
+                onLoadWeek1(data);
+            });
+        }.bind(this)
+    );
+
+    jsdom.env(
+        urlWeek2,
+        ['http://code.jquery.com/jquery.js'],
+        function(err, window) {
+            if (err) {
+                throw err;
+            }
+
+            this._onLoad(window, function(data) {
+                onLoadWeek2(data);
             });
         }.bind(this)
     );
@@ -38,9 +72,13 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
     // $('.dayDividerHeader:not(.open)').click();
 
     var shows = [];
-    var $scheduler = $('.weekInner');
-	var $days = $scheduler.find('.day');
-	var dateString = $days.first().find('.dateHeader > span').text().replace('Dec', 'Dez').replace('May', 'Mai');
+    var $days = $('.weekInner').find('.day');
+    var dateString = $days
+        .first()
+        .find('.dateHeader > span')
+        .text()
+        .replace('Dec', 'Dez')
+        .replace('May', 'Mai');
 
     $days.each(
         function(i, day) {
@@ -49,19 +87,30 @@ WochenplanCrawler.prototype._onLoad = function(window, callback) {
             if ($day.hasClass('blindfill')) return true;
 
             // Look for date
-            var date = moment(dateString, 'DD. MMM YYYY').add($day.index(), 'days');
+            var date = moment(dateString, 'DD. MMM YYYY').add(
+                $day.index(),
+                'days'
+            );
 
             // Look for live-events
             $day.find('.show .live').each(
                 function(j, badge) {
-                    shows.push(this._parseShow('live', date, $(badge).closest('.show')));
+                    shows.push(
+                        this._parseShow('live', date, $(badge).closest('.show'))
+                    );
                 }.bind(this)
             );
 
             // Look for premiere-events
             $day.find('.show .premiere').each(
                 function(j, badge) {
-                    shows.push(this._parseShow('premiere', date, $(badge).closest('.show')));
+                    shows.push(
+                        this._parseShow(
+                            'premiere',
+                            date,
+                            $(badge).closest('.show')
+                        )
+                    );
                 }.bind(this)
             );
         }.bind(this)
@@ -74,13 +123,21 @@ WochenplanCrawler.prototype._parseShow = function(type, date, $show) {
     $show.find('.scheduleTime > span').remove();
 
     var startTime = moment(
-        date.format('YYYY-MM-DD') + ' ' + $show.find('.scheduleTime').text().trim(),
+        date.format('YYYY-MM-DD') +
+            ' ' +
+            $show
+                .find('.scheduleTime')
+                .text()
+                .trim(),
         'YYYY-MM-DD HH:mm'
     );
     var title = $show.find('.showDetails > h4').text();
     var description = $show.find('.game').text();
     var duration = $show.find('.showDuration').text();
-    var image = $show.find('.scheduleThumbnail > img').attr('src').replace(/^\/\//, 'https://');
+    var image = $show
+        .find('.scheduleThumbnail > img')
+        .attr('src')
+        .replace(/^\/\//, 'https://');
 
     startTime.tz('Europe/Berlin');
 
