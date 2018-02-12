@@ -19,7 +19,22 @@ WochenplanCrawler.prototype.start = function() {
     var dataWeek1;
     var dataWeek2;
 
-    var finish = () => onData([].concat(dataWeek1, dataWeek2));
+    var finish = () => {
+        const data = [].concat(dataWeek1, dataWeek2);
+        const result = [];
+
+        data.forEach(item => {
+            if (
+                !result.find(
+                    item2 => item2.startTime.unix() === item.startTime.unix()
+                )
+            ) {
+                result.push(item);
+            }
+        });
+
+        onData(result);
+    };
 
     var onLoadWeek1 = data => {
         dataWeek1 = data;
