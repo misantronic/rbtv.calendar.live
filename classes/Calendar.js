@@ -71,11 +71,9 @@ Calendar.prototype.insertEvents = function (data) {
 
             switch (show.type) {
                 case 'live':
-                    summary = '[L] ' + summary;
                     colorId = 11;
                     break;
                 case 'premiere':
-                    summary = '[N] ' + summary;
                     colorId = 9;
                     break;
             }
