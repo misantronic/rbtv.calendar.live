@@ -69,6 +69,11 @@ Calendar.prototype.insertEvents = function (data) {
             var image = show.image;
             var colorId = 9;
 
+            // add bohnen
+            if (show.bohnen && show.bohnen.length) {
+                description += '\n\nmit ' + show.bohnen.join(', ');
+            }
+
             switch (show.type) {
                 case 'live':
                     colorId = 11;

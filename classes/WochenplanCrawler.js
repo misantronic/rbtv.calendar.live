@@ -33,7 +33,8 @@ WochenplanCrawler.prototype.start = function () {
                             startTime: new Date(item.timeStart),
                             endTime: new Date(item.timeEnd),
                             type: item.type,
-                            image: item.episodeImage
+                            image: item.episodeImage,
+                            bohnen: item.bohnen.map(bean => bean.name)
                         }))
                     ).reduce((memo, day) => [...memo, ...day], [])
                 )
