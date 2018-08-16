@@ -1,11 +1,11 @@
-var fs         = require('fs');
-var readline   = require('readline');
+var fs = require('fs');
+var readline = require('readline');
 var googleAuth = require('google-auth-library');
 
-var clientSecret = './credentials/client_secret.json';
-var SCOPES       = ['https://www.googleapis.com/auth/calendar'];
+var clientSecret = __dirname + '/../credentials/client_secret1.json';
+var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
-var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+var rtg = require("url").parse(process.env.REDISTOGO_URL);
 var redis = require("redis").createClient(rtg.port, rtg.hostname);
 
 redis.auth(rtg.auth.split(":")[1]);
@@ -56,9 +56,9 @@ GoogleAuth.prototype.resetToken = function () {
  */
 GoogleAuth.prototype._authorize = function (credentials, callback) {
 	var clientSecret = credentials.installed.client_secret;
-	var clientId     = credentials.installed.client_id;
-	var redirectUrl  = credentials.installed.redirect_uris[0];
-	var auth         = new googleAuth();
+	var clientId = credentials.installed.client_id;
+	var redirectUrl = credentials.installed.redirect_uris[0];
+	var auth = new googleAuth();
 
 	this.oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
