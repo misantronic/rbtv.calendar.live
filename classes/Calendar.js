@@ -9,20 +9,19 @@ function Calendar(calendarId, auth) {
     this.auth = auth;
 }
 
-Calendar.prototype.removeAllEvents = function() {
+Calendar.prototype.removeAllEvents = function () {
     console.log('Google Calendar API: removeAllEvents');
 
     this.rl = readline.createInterface(process.stdin, process.stdout);
 
     return new Promise(
-        function(resolve, reject) {
-            calendar.events.list(
-                {
+        function (resolve, reject) {
+            calendar.events.list({
                     auth: this.auth,
                     singleEvents: true,
                     calendarId: this.calendarId
                 },
-                function(err, response) {
+                function (err, response) {
                     if (err) {
                         console.error('The API returned an error: ' + err);
                         reject();
@@ -37,7 +36,7 @@ Calendar.prototype.removeAllEvents = function() {
                         resolve();
                     } else {
                         var events = items.map(
-                            function(event) {
+                            function (event) {
                                 return {
                                     auth: this.auth,
                                     calendarId: this.calendarId,
@@ -57,14 +56,14 @@ Calendar.prototype.removeAllEvents = function() {
     );
 };
 
-Calendar.prototype.insertEvents = function(data) {
+Calendar.prototype.insertEvents = function (data) {
     console.log('\n' + 'Google Calendar API: insertEvents', JSON.stringify(data) + '\n');
 
     // Map calendar data
     var events = data.map(
-        function(show) {
-            var startTime = show.startTime.format();
-            var endTime = show.endTime.format();
+        function (show) {
+            var startTime = show.startTime.toISOString();
+            var endTime = show.endTime.toISOString();
             var description = show.description;
             var summary = show.title + (description ? ' - ' + description : '');
             var image = show.image;
@@ -95,7 +94,10 @@ Calendar.prototype.insertEvents = function(data) {
                     description: description,
                     summary: summary,
                     colorId: colorId,
-                    source: { url: image, title: 'thumbnail' }
+                    source: {
+                        url: image,
+                        title: 'thumbnail'
+                    }
                 }
             };
         }.bind(this)
@@ -111,10 +113,10 @@ Calendar.prototype.insertEvents = function(data) {
  * @param callback
  * @private
  */
-Calendar.prototype._removeEvents = function(events, i, callback) {
+Calendar.prototype._removeEvents = function (events, i, callback) {
     if (events[i]) {
         this._removeEvent(events[i]).then(
-            function() {
+            function () {
                 this._removeEvents(events, i + 1, callback);
             }.bind(this)
         );
@@ -128,12 +130,12 @@ Calendar.prototype._removeEvents = function(events, i, callback) {
  * @param obj
  * @private
  */
-Calendar.prototype._removeEvent = function(obj) {
+Calendar.prototype._removeEvent = function (obj) {
     return new Promise(
-        function(resolve, reject) {
+        function (resolve, reject) {
             calendar.events.delete(
                 obj,
-                function(err, response) {
+                function (err, response) {
                     this._deleteCounter++;
 
                     if (!response) {
@@ -160,10 +162,10 @@ Calendar.prototype._removeEvent = function(obj) {
  * @param i
  * @private
  */
-Calendar.prototype._addEvents = function(events, i) {
+Calendar.prototype._addEvents = function (events, i) {
     if (events[i]) {
         this._addEvent(events[i]).then(
-            function() {
+            function () {
                 this._addEvents(events, i + 1);
             }.bind(this)
         );
@@ -178,12 +180,12 @@ Calendar.prototype._addEvents = function(events, i) {
  * @param obj
  * @private
  */
-Calendar.prototype._addEvent = function(obj) {
+Calendar.prototype._addEvent = function (obj) {
     return new Promise(
-        function(resolve, reject) {
+        function (resolve, reject) {
             calendar.events.insert(
                 obj,
-                function(err, response) {
+                function (err, response) {
                     if (err) {
                         console.log('The API returned an error: ' + err);
 
@@ -192,7 +194,7 @@ Calendar.prototype._addEvent = function(obj) {
 
                             // Wait 100 seconds
                             setTimeout(
-                                function() {
+                                function () {
                                     this._addEvent(obj).then(resolve);
                                 }.bind(this),
                                 100000

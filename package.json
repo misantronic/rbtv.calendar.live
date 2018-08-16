@@ -6,6 +6,7 @@
     "start": "node ./bin/crawl"
   },
   "dependencies": {
+    "date-fns": "^1.29.0",
     "google-auth-library": "^0.9.7",
     "googleapis": "^2.1.7",
     "jsdom": "^8.0.2",
