@@ -20,19 +20,15 @@ function fetchData(url) {
           resolve(
             data
               .map((day) =>
-                day.elements
-                  .filter(
-                    (item) => item.type === "live" || item.type === "premiere"
-                  )
-                  .map((item) => ({
-                    title: item.title,
-                    description: item.topic,
-                    startTime: new Date(item.timeStart),
-                    endTime: new Date(item.timeEnd),
-                    type: item.type,
-                    image: item.episodeImage,
-                    bohnen: item.bohnen.map((bean) => bean.name)
-                  }))
+                day.elements.map((item) => ({
+                  title: item.title,
+                  description: item.topic,
+                  startTime: new Date(item.timeStart || item.uploadDate),
+                  endTime: item.timeEnd ? new Date(item.timeEnd) : undefined,
+                  type: item.type,
+                  image: item.episodeImage || item.showThumbnail[0].url,
+                  bohnen: (item.bohnen || []).map((bean) => bean.name)
+                }))
               )
               .reduce((memo, day) => [...memo, ...day], [])
           );
