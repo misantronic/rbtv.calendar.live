@@ -1,112 +1,113 @@
-var google = require('googleapis');
-var Promise = require('promise');
-var readline = require('readline');
+var google = require("googleapis");
+var Promise = require("promise");
+var readline = require("readline");
 
-var calendar = google.calendar('v3');
+var calendar = google.calendar("v3");
 
 function Calendar(calendarId, auth) {
-    this.calendarId = calendarId;
-    this.auth = auth;
+  this.calendarId = calendarId;
+  this.auth = auth;
 }
 
 Calendar.prototype.removeAllEvents = function () {
-    console.log('Google Calendar API: removeAllEvents');
+  console.log("Google Calendar API: removeAllEvents");
 
-    this.rl = readline.createInterface(process.stdin, process.stdout);
+  this.rl = readline.createInterface(process.stdin, process.stdout);
 
-    return new Promise(
-        function (resolve, reject) {
-            calendar.events.list({
-                    auth: this.auth,
-                    singleEvents: true,
-                    calendarId: this.calendarId
-                },
-                function (err, response) {
-                    if (err) {
-                        console.error('The API returned an error: ' + err);
-                        reject();
-                        return;
-                    }
+  return new Promise(
+    function (resolve, reject) {
+      calendar.events.list(
+        {
+          auth: this.auth,
+          singleEvents: true,
+          calendarId: this.calendarId
+        },
+        function (err, response) {
+          if (err) {
+            console.error("The API returned an error: " + err);
+            reject();
+            return;
+          }
 
-                    var items = response.items;
+          var items = response.items;
 
-                    console.log('- Removing items:', items.length);
+          console.log("- Removing items:", items.length);
 
-                    if (items.length === 0) {
-                        resolve();
-                    } else {
-                        var events = items.map(
-                            function (event) {
-                                return {
-                                    auth: this.auth,
-                                    calendarId: this.calendarId,
-                                    eventId: event.id
-                                };
-                            }.bind(this)
-                        );
-
-                        this._deleteCounter = 0;
-                        this._eventsTodelete = events.length;
-
-                        this._removeEvents(events, 0, resolve);
-                    }
-                }.bind(this)
+          if (items.length === 0) {
+            resolve();
+          } else {
+            var events = items.map(
+              function (event) {
+                return {
+                  auth: this.auth,
+                  calendarId: this.calendarId,
+                  eventId: event.id
+                };
+              }.bind(this)
             );
+
+            this._deleteCounter = 0;
+            this._eventsTodelete = events.length;
+
+            this._removeEvents(events, 0, resolve);
+          }
         }.bind(this)
-    );
+      );
+    }.bind(this)
+  );
 };
 
 Calendar.prototype.insertEvents = function (data) {
-    console.log('\n' + 'Google Calendar API: insertEvents', JSON.stringify(data) + '\n');
+  console.log("\n" + "Google Calendar API: insertEvents", data.length + "\n");
 
-    // Map calendar data
-    var events = data.map(
-        function (show) {
-            var startTime = show.startTime.toISOString();
-            var endTime = show.endTime.toISOString();
-            var description = show.description;
-            var summary = show.title + (description ? ' - ' + description : '');
-            var image = show.image;
-            var colorId = 9;
+  // Map calendar data
+  var events = data.map(
+    function (show) {
+      var startTime = show.startTime.toISOString();
+      var endTime = show.endTime.toISOString();
+      var description = show.description;
+      var summary = show.title + (description ? " - " + description : "");
+      var image = show.image;
+      var colorId = 9;
 
-            // add bohnen
-            if (show.bohnen && show.bohnen.length) {
-                description += '\n\nmit ' + show.bohnen.join(', ');
-            }
+      // add bohnen
+      if (show.bohnen && show.bohnen.length) {
+        description += "\n\nmit " + show.bohnen.join(", ");
+      }
 
-            switch (show.type) {
-                case 'live':
-                    colorId = 11;
-                    break;
-                case 'premiere':
-                    colorId = 9;
-                    break;
-            }
+      switch (show.type) {
+        case "live":
+          colorId = 11;
+          break;
+        case "premiere":
+          colorId = 9;
+          break;
+      }
 
-            return {
-                auth: this.auth,
-                calendarId: this.calendarId,
-                supportsAttachments: true,
-                resource: {
-                    start: {
-                        dateTime: startTime
-                    },
-                    end: {
-                        dateTime: endTime
-                    },
-                    description: description,
-                    summary: summary,
-                    colorId: colorId,
-                    source: {
-                        url: image,
-                        title: 'thumbnail'
-                    }
-                }
-            };
-        }.bind(this)
-    );
+      return {
+        auth: this.auth,
+        calendarId: this.calendarId,
+        supportsAttachments: true,
+        resource: {
+          start: {
+            dateTime: startTime
+          },
+          end: {
+            dateTime: endTime
+          },
+          description: description,
+          summary: summary,
+          colorId: colorId,
+          source: {
+            url: image,
+            title: "thumbnail"
+          }
+        }
+      };
+    }.bind(this)
+  );
 
-    this._addEvents(events, 0);
+  this._addEvents(events, 0);
 };
 
 /**
@@ -117,15 +118,15 @@ Calendar.prototype.insertEvents = function (data) {
  * @private
  */
 Calendar.prototype._removeEvents = function (events, i, callback) {
-    if (events[i]) {
-        this._removeEvent(events[i]).then(
-            function () {
-                this._removeEvents(events, i + 1, callback);
-            }.bind(this)
-        );
-    } else {
-        callback();
-    }
+  if (events[i]) {
+    this._removeEvent(events[i]).then(
+      function () {
+        this._removeEvents(events, i + 1, callback);
+      }.bind(this)
+    );
+  } else {
+    callback();
+  }
 };
 
 /**
@@ -134,29 +135,31 @@ Calendar.prototype._removeEvents = function (events, i, callback) {
  * @private
  */
 Calendar.prototype._removeEvent = function (obj) {
-    return new Promise(
-        function (resolve, reject) {
-            calendar.events.delete(
-                obj,
-                function (err, response) {
-                    this._deleteCounter++;
+  return new Promise(
+    function (resolve, reject) {
+      calendar.events.delete(
+        obj,
+        function (err, response) {
+          this._deleteCounter++;
 
-                    if (!response) {
-                        readline.clearLine(this.rl.output);
-                        readline.cursorTo(this.rl.output, 0);
+          if (!response) {
+            readline.clearLine(this.rl.output);
+            readline.cursorTo(this.rl.output, 0);
 
-                        var p = Math.round(this._deleteCounter / this._eventsTodelete * 100);
-
-                        this.rl.output.write(p.toString() + '%');
-
-                        resolve();
-                    } else {
-                        reject();
-                    }
-                }.bind(this)
+            var p = Math.round(
+              (this._deleteCounter / this._eventsTodelete) * 100
             );
+
+            this.rl.output.write(p.toString() + "%");
+
+            resolve();
+          } else {
+            reject();
+          }
         }.bind(this)
-    );
+      );
+    }.bind(this)
+  );
 };
 
 /**
@@ -166,16 +169,16 @@ Calendar.prototype._removeEvent = function (obj) {
  * @private
  */
 Calendar.prototype._addEvents = function (events, i) {
-    if (events[i]) {
-        this._addEvent(events[i]).then(
-            function () {
-                this._addEvents(events, i + 1);
-            }.bind(this)
-        );
-    } else {
-        console.log('Finished.');
-        process.exit();
-    }
+  if (events[i]) {
+    this._addEvent(events[i]).then(
+      function () {
+        this._addEvents(events, i + 1);
+      }.bind(this)
+    );
+  } else {
+    console.log("Finished.");
+    process.exit();
+  }
 };
 
 /**
@@ -184,43 +187,43 @@ Calendar.prototype._addEvents = function (events, i) {
  * @private
  */
 Calendar.prototype._addEvent = function (obj) {
-    return new Promise(
-        function (resolve, reject) {
-            calendar.events.insert(
-                obj,
-                function (err, response) {
-                    if (err) {
-                        console.log('The API returned an error: ' + err);
+  return new Promise(
+    function (resolve, reject) {
+      calendar.events.insert(
+        obj,
+        function (err, response) {
+          if (err) {
+            console.log("The API returned an error: " + err);
 
-                        if (err.message === 'Rate Limit Exceeded') {
-                            console.log('Waiting 100 seconds...');
+            if (err.message === "Rate Limit Exceeded") {
+              console.log("Waiting 100 seconds...");
 
-                            // Wait 100 seconds
-                            setTimeout(
-                                function () {
-                                    this._addEvent(obj).then(resolve);
-                                }.bind(this),
-                                100000
-                            );
-                        } else {
-                            resolve();
-                        }
+              // Wait 100 seconds
+              setTimeout(
+                function () {
+                  this._addEvent(obj).then(resolve);
+                }.bind(this),
+                100000
+              );
+            } else {
+              resolve();
+            }
 
-                        return;
-                    }
+            return;
+          }
 
-                    if (response.status === 'confirmed') {
-                        console.log('- Event added: ', response.summary);
+          if (response.status === "confirmed") {
+            console.log("- Event added: ", response.summary);
 
-                        resolve();
-                        return;
-                    }
+            resolve();
+            return;
+          }
 
-                    reject();
-                }.bind(this)
-            );
+          reject();
         }.bind(this)
-    );
+      );
+    }.bind(this)
+  );
 };
 
 module.exports = Calendar;
