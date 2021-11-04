@@ -79,6 +79,7 @@ Calendar.prototype.insertEvents = function (data) {
         case "live":
           colorId = 11;
           break;
+        default:
         case "premiere":
           colorId = 9;
           break;
