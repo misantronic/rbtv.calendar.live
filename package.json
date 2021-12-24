@@ -17,5 +17,8 @@
   },
   "engines": {
     "node": "12.20.1"
+  },
+  "prettier": {
+    "tabWidth": 4
   }
 }
