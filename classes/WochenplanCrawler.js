@@ -28,52 +28,46 @@ function fetch(url) {
 async function fetchData(url) {
     const data = (await fetch(url)).data;
 
-    return Promise.all(
-        data
-            .map(async (day) =>
-                day.elements.map(async (item) => {
-                    const startTime = new Date(
-                        item.timeStart || item.uploadDate
+    const parsedData = await Promise.all(
+        data.map(async (day) =>
+            day.elements.map(async (item) => {
+                const startTime = new Date(item.timeStart || item.uploadDate);
+                let endTime = item.timeEnd ? new Date(item.timeEnd) : undefined;
+
+                if (!endTime) {
+                    const episode = await fetch(
+                        `https://api.rocketbeans.tv/v1/media/episode/${item.id}`
                     );
-                    let endTime = item.timeEnd
-                        ? new Date(item.timeEnd)
-                        : undefined;
 
-                    if (!endTime) {
-                        const episode = await fetch(
-                            `https://api.rocketbeans.tv/v1/media/episode/${item.id}`
-                        );
+                    if (episode) {
+                        const { duration } = episode.data.episodes[0];
 
-                        if (episode) {
-                            const { duration } = episode.data.episodes[0];
-
-                            endTime = new Date(
-                                endTime.getTime() + duration * 1000
-                            );
-                        }
+                        endTime = new Date(endTime.getTime() + duration * 1000);
                     }
+                }
 
-                    if (!endTime) {
-                        endTime = startTime;
-                    }
+                if (!endTime) {
+                    endTime = startTime;
+                }
 
-                    return {
-                        title: item.title,
-                        description: item.topic,
-                        startTime,
-                        endTime,
-                        type: item.type,
-                        image:
-                            item.episodeImage ||
-                            (item.showThumbnail
-                                ? item.showThumbnail[0].url
-                                : undefined),
-                        bohnen: (item.bohnen || []).map((bean) => bean.name),
-                    };
-                })
-            )
-            .reduce((memo, day) => [...memo, ...day], [])
+                return {
+                    title: item.title,
+                    description: item.topic,
+                    startTime,
+                    endTime,
+                    type: item.type,
+                    image:
+                        item.episodeImage ||
+                        (item.showThumbnail
+                            ? item.showThumbnail[0].url
+                            : undefined),
+                    bohnen: (item.bohnen || []).map((bean) => bean.name),
+                };
+            })
+        )
     );
+
+    return parsedData.reduce((memo, day) => [...memo, ...day], []);
 }
 
 WochenplanCrawler.prototype.start = async function () {
