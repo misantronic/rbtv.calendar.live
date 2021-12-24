@@ -6,6 +6,9 @@ function WochenplanCrawler() {}
 WochenplanCrawler.prototype.onData = function () {};
 
 function fetch(url) {
+    console.time(`fetch success: ${url}`);
+    console.time(`fetch failed: ${url}`);
+
     return new Promise((resolve, reject) => {
         https
             .get(url, (resp) => {
@@ -15,11 +18,13 @@ function fetch(url) {
                 resp.on("end", () => {
                     const data = JSON.parse(result.join(""));
 
+                    console.timeEnd(`fetch success: ${url}`);
                     resolve(data);
                 });
             })
             .on("error", (err) => {
-                console.log("Error: " + err.message);
+                console.error("fetch error", err);
+                console.timeEnd(`fetch failed: ${url}`);
                 reject(undefined);
             });
     });
