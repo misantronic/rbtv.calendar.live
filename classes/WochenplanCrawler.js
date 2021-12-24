@@ -42,7 +42,9 @@ async function fetchData(url) {
                     if (episode) {
                         const { duration } = episode.data.episodes[0];
 
-                        endTime = new Date(endTime.getTime() + duration * 1000);
+                        endTime = new Date(
+                            startTime.getTime() + duration * 1000
+                        );
                     }
                 }
 
