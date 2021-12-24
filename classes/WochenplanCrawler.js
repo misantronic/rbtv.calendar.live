@@ -25,7 +25,7 @@ function fetch(url) {
     });
 }
 
-function fetchData(url) {
+async function fetchData(url) {
     const data = (await fetch(url)).data;
 
     return Promise.all(
