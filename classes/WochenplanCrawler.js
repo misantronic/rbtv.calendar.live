@@ -53,9 +53,7 @@ async function fetchData(url) {
                     }
                 }
 
-                if (!endTime) {
-                    endTime = startTime;
-                }
+                endTime = endTime || startTime;
 
                 return {
                     title: item.title,
@@ -87,6 +85,8 @@ WochenplanCrawler.prototype.start = async function () {
     const dataVod = await fetchData(
         `https://api.rocketbeans.tv/v1/schedule/publish?from=${startDay}`
     );
+
+    console.log({ dataLive, dataVod });
 
     this.onData([...dataLive, ...dataVod]);
 };
