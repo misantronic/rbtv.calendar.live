@@ -60,6 +60,10 @@ async function fetchData(url) {
 
                     endTime = endTime || startTime;
 
+                    const bohnen = item.bohnen
+                        ? Object.values(item.bohnen)
+                        : [];
+
                     return {
                         title: item.title,
                         description: item.topic,
@@ -71,7 +75,7 @@ async function fetchData(url) {
                             (item.showThumbnail
                                 ? item.showThumbnail[0].url
                                 : undefined),
-                        bohnen: (item.bohnen || []).map((bean) => bean.name),
+                        bohnen: bohnen.map((bean) => bean.name),
                     };
                 })
             );
