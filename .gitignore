@@ -1,3 +1,2 @@
-credentials/*
 node_modules
-.idea
+dist
