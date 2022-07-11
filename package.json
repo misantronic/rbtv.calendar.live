@@ -6,7 +6,8 @@
         "build": "rm -rf dist && tsc -p . && cp -r node_modules dist/node_modules",
         "clean-packages": "rm -rf dist/node_modules/aws-sdk typescript",
         "zip": "cd dist && zip -r -q $npm_package_name.zip . && cd ..",
-        "deploy": "npm run build && npm run clean-packages && npm run zip && ts-node ./update-lambda $npm_package_name ./dist/$npm_package_name.zip"
+        "start": "npm run build && npm run clean-packages && npm run zip && ts-node ./update-lambda $npm_package_name ./dist/$npm_package_name.zip",
+        "run": "npm run build && node dist/run"
     },
     "dependencies": {
         "googleapis": "^105.0.0",

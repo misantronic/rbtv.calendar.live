@@ -1,15 +1,37 @@
 import { crawler } from './crawler';
 import { googleCalendar } from './calendar';
 
-exports.handler = async (): Promise<any> => {
-    const calendar = await googleCalendar(
-        '5aj6musne0k96vbqlu43p8lgs0@group.calendar.google.com'
-    );
-    const shows = await crawler();
+export const handler = async () => {
+    const { showsLive, showsVod } = await crawler();
 
-    await calendar.removeAllEvents();
+    async function handleLiveAndVod() {
+        console.log('-- LIVE and VOD --');
 
-    for (const show of shows) {
-        await calendar.insert(show);
+        const calendar = await googleCalendar(
+            '5aj6musne0k96vbqlu43p8lgs0@group.calendar.google.com'
+        );
+
+        await calendar.removeAllEvents();
+
+        for (const show of [...showsLive, ...showsVod]) {
+            await calendar.insert(show);
+        }
     }
+
+    async function handleLive() {
+        console.log('-- VOD --');
+
+        const calendar = await googleCalendar(
+            'oq3rpredemlhs1aejld2qdh4i8@group.calendar.google.com'
+        );
+
+        await calendar.removeAllEvents();
+
+        for (const show of showsLive) {
+            await calendar.insert(show);
+        }
+    }
+
+    await handleLiveAndVod();
+    await handleLive();
 };

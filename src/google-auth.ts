@@ -32,7 +32,7 @@ function secrets() {
             throw new Error('Not found');
         },
 
-        async putSecret(key: SecretsKey, value: string) {
+        async putSecret(key: SecretsKey, value: Object) {
             return secrets
                 .putSecretValue({
                     SecretId: key,
@@ -76,10 +76,7 @@ export async function authorize() {
             if (token.expiry_date < DateTime.now().toMillis()) {
                 const { credentials } = await oAuth2Client.refreshAccessToken();
 
-                await putSecret(
-                    'rbtv.calendar-update.token',
-                    JSON.stringify(credentials)
-                );
+                await putSecret('rbtv.calendar-update.token', credentials);
             }
 
             resolve(oAuth2Client);
@@ -115,10 +112,7 @@ function getAccessToken(oAuth2Client: OAuth2Client): Promise<OAuth2Client> {
                 if (token) {
                     oAuth2Client.setCredentials(token);
 
-                    await putSecret(
-                        'rbtv.calendar-update.token',
-                        JSON.stringify(token)
-                    );
+                    await putSecret('rbtv.calendar-update.token', token);
 
                     resolve(oAuth2Client);
                 }

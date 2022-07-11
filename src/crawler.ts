@@ -169,7 +169,7 @@ export async function crawler() {
         )
     ).flat();
 
-    return [...showsLive, ...showsVod];
+    return { showsLive, showsVod };
 }
 
 async function fetchJSON<T = any>(url: string): Promise<T> {
