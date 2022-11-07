@@ -2,7 +2,7 @@ import { google } from 'googleapis';
 import * as readline from 'readline';
 import { OAuth2Client } from 'google-auth-library';
 import { DateTime } from 'luxon';
-import { SecretsManager } from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
@@ -11,33 +11,27 @@ type SecretsKey =
     | 'rbtv.calendar-update.credentials';
 
 function secrets() {
-    const secrets = new SecretsManager({
+    const s3 = new S3({
         region: 'eu-central-1'
     });
+    const Bucket = 'rbtv-secrets';
 
     return {
         async getSecret<T = any>(key: SecretsKey) {
-            const { SecretString } = await secrets
-                .getSecretValue({ SecretId: key })
-                .promise();
+            const obj = await s3.getObject({ Bucket, Key: key }).promise();
 
-            if (SecretString) {
-                if (SecretString === '{}') {
-                    return undefined;
-                } else {
-                    return JSON.parse(SecretString) as T;
-                }
+            const bodyStr = obj.Body?.toString();
+
+            if (bodyStr) {
+                return JSON.parse(bodyStr) as T;
             }
 
             throw new Error('Not found');
         },
 
         async putSecret(key: SecretsKey, value: Object) {
-            return secrets
-                .putSecretValue({
-                    SecretId: key,
-                    SecretString: JSON.stringify(value)
-                })
+            return s3
+                .putObject({ Bucket, Key: key, Body: JSON.stringify(value) })
                 .promise();
         }
     };
