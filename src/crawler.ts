@@ -1,5 +1,5 @@
-import { DateTime } from 'luxon';
 import { get } from 'https';
+import { DateTime } from 'luxon';
 
 interface Image {
     name: 'small' | 'medium' | 'large' | 'source';
@@ -115,6 +115,13 @@ export async function crawler() {
         )
     ]);
 
+    const filterShow = (show: NormalizedShow) => {
+        return (
+            !show.title.startsWith('SuuN') &&
+            !show.title.startsWith('Haselnuuuss')
+        );
+    };
+
     const showsLive = scheduleLive.data
         .map(({ elements }) => {
             return elements.map<NormalizedShow>((item) => {
@@ -132,7 +139,8 @@ export async function crawler() {
                 };
             });
         })
-        .flat();
+        .flat()
+        .filter(filterShow);
 
     const showsVod = (
         await Promise.all(
@@ -167,7 +175,9 @@ export async function crawler() {
                 );
             })
         )
-    ).flat();
+    )
+        .flat()
+        .filter(filterShow);
 
     return { showsLive, showsVod };
 }
