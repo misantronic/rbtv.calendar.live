@@ -1,8 +1,13 @@
-import { google } from 'googleapis';
-import * as readline from 'readline';
+import {
+    GetObjectCommand,
+    PutObjectCommand,
+    S3Client
+} from '@aws-sdk/client-s3';
 import { OAuth2Client } from 'google-auth-library';
+import { google } from 'googleapis';
 import { DateTime } from 'luxon';
-import { S3 } from 'aws-sdk';
+import * as readline from 'readline';
+import { Readable } from 'stream';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
@@ -10,29 +15,50 @@ type SecretsKey =
     | 'rbtv.calendar-update.token'
     | 'rbtv.calendar-update.credentials';
 
+async function streamToString(stream?: Readable): Promise<string> {
+    if (!stream) {
+        return '{}';
+    }
+
+    let data: string = '';
+    try {
+        for await (const chunk of stream) {
+            data += chunk.toString();
+        }
+        return data;
+    } catch (err) {
+        console.error('Error while reading from stream', err);
+        return '';
+    }
+}
+
 function secrets() {
-    const s3 = new S3({
+    const s3 = new S3Client({
         region: 'eu-central-1'
     });
     const Bucket = 'rbtv-secrets';
 
     return {
         async getSecret<T = any>(key: SecretsKey) {
-            const obj = await s3.getObject({ Bucket, Key: key }).promise();
+            const obj = await s3.send(
+                new GetObjectCommand({ Bucket, Key: key })
+            );
 
-            const bodyStr = obj.Body?.toString();
+            const bodyStr = await streamToString(
+                obj.Body as Readable | undefined
+            );
 
-            if (bodyStr) {
-                return JSON.parse(bodyStr) as T;
-            }
-
-            throw new Error('Not found');
+            return JSON.parse(bodyStr) as T;
         },
 
         async putSecret(key: SecretsKey, value: Object) {
-            return s3
-                .putObject({ Bucket, Key: key, Body: JSON.stringify(value) })
-                .promise();
+            return s3.send(
+                new PutObjectCommand({
+                    Bucket,
+                    Key: key,
+                    Body: JSON.stringify(value)
+                })
+            );
         }
     };
 }

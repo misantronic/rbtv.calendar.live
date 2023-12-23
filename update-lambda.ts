@@ -1,14 +1,16 @@
-import { Lambda, config, S3 } from 'aws-sdk';
+import {
+    LambdaClient,
+    UpdateFunctionCodeCommand
+} from '@aws-sdk/client-lambda';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { readFileSync } from 'fs';
 
 const FunctionName = process.argv[2];
 const path = process.argv[3];
-const region = process.argv[4];
-
-config.region = region || 'eu-central-1';
+const region = process.argv[4] || 'eu-central-1';
 
 console.log('deploying lambda function', {
-    region: config.region,
+    region,
     FunctionName,
     path
 });
@@ -23,30 +25,27 @@ if (!path) {
 
 const ZipFile = readFileSync(path);
 
-const s3 = new S3();
-const Bucket = `report-royal-lambda-${config.region}`;
+const s3 = new S3Client();
+const Bucket = `report-royal-lambda-${region}`;
 const Key = FunctionName;
 
-s3.putObject({
-    Bucket,
-    Key,
-    Body: ZipFile
-})
-    .promise()
-    .then(() => {
-        const lambda = new Lambda();
+s3.send(
+    new PutObjectCommand({
+        Bucket,
+        Key,
+        Body: ZipFile
+    })
+).then(async () => {
+    const lambda = new LambdaClient();
 
-        lambda.updateFunctionCode(
-            {
-                FunctionName,
-                S3Bucket: Bucket,
-                S3Key: Key,
-                Publish: true
-            },
-            (err, data) => {
-                if (err) throw err;
+    const result = await lambda.send(
+        new UpdateFunctionCodeCommand({
+            FunctionName,
+            S3Bucket: Bucket,
+            S3Key: Key,
+            Publish: true
+        })
+    );
 
-                console.log(data);
-            }
-        );
-    });
+    console.log(result);
+});
