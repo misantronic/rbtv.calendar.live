@@ -36,7 +36,7 @@ interface V1ScheduleNormalized {
             durationClass: number;
             bohnen: Bohne[];
             streamExclusive: boolean;
-            type: 'live';
+            type: 'live' | 'vod' | 'stream';
             links: any[];
             channelGroups: {
                 mgmtId: number;
@@ -95,7 +95,7 @@ export interface NormalizedShow {
     description: string;
     startDateTime: DateTime;
     endDateTime: DateTime;
-    type: 'live' | 'vod';
+    type: 'live' | 'vod' | 'stream';
     image: string;
     bohnen: string[];
 }
@@ -115,14 +115,11 @@ export async function crawler() {
         )
     ]);
 
-    const filterShow = (show: NormalizedShow) => {
-        return (
-            !show.title.startsWith('SuuN') &&
-            !show.title.startsWith('Haselnuuuss')
-        );
+    const isStream = (title: string) => {
+        return title.includes('streamt');
     };
 
-    const showsLive = scheduleLive.data
+    const allShowsLive = scheduleLive.data
         .map(({ elements }) => {
             return elements.map<NormalizedShow>((item) => {
                 const startDateTime = DateTime.fromISO(item.timeStart);
@@ -133,14 +130,17 @@ export async function crawler() {
                     description: item.topic,
                     startDateTime,
                     endDateTime,
-                    type: item.type,
+                    type: isStream(item.title) ? 'stream' : item.type,
                     image: item.episodeImage,
                     bohnen: item.bohnen.map((bohne) => bohne.name)
                 };
             });
         })
-        .flat()
-        .filter(filterShow);
+        .flat();
+
+    const showsLive = allShowsLive.filter(({ type }) => type === 'live');
+
+    const showsStreams = allShowsLive.filter(({ type }) => type === 'stream');
 
     const showsVod = (
         await Promise.all(
@@ -177,9 +177,9 @@ export async function crawler() {
         )
     )
         .flat()
-        .filter(filterShow);
+        .filter(({ type }) => type === 'vod');
 
-    return { showsLive, showsVod };
+    return { showsLive, showsVod, showsStreams };
 }
 
 async function fetchJSON<T = any>(url: string): Promise<T> {

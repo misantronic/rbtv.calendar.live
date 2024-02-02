@@ -7,7 +7,7 @@
         "clean-packages": "rm -rf dist/node_modules/aws-sdk typescript",
         "zip": "cd dist && zip -r -q $npm_package_name.zip . && cd ..",
         "start": "npm run build && npm run clean-packages && npm run zip && ts-node ./update-lambda $npm_package_name ./dist/$npm_package_name.zip",
-        "run": "npm run build && node dist/run"
+        "exec": "npm run build && node dist/run"
     },
     "dependencies": {
         "@aws-sdk/client-lambda": "^3.478.0",

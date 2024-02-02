@@ -1,6 +1,6 @@
-import { authorize } from './google-auth';
 import { calendar_v3, google } from 'googleapis';
 import type { NormalizedShow } from './crawler';
+import { authorize } from './google-auth';
 
 async function wait<T = unknown>(delay: number) {
     return new Promise<T>((resolve) => {
@@ -77,6 +77,8 @@ export async function googleCalendar(calendarId: string) {
                         return '11';
                     case 'vod':
                         return '9';
+                    case 'stream':
+                        return '3';
                 }
             })();
 
