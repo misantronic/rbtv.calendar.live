@@ -16,6 +16,33 @@ interface Bohne {
     episodeCount: number;
 }
 
+interface ChannelGroup {
+    mgmtId: number;
+    type: 'talent' | 'main';
+    name: string;
+    description: string;
+    channelGroupIcon: Image[];
+    channels: {
+        mgmtId: number;
+        channelGroupId: number;
+        title: string | null;
+        url: string;
+        serviceType: 'twitch';
+        platformId: string;
+        platformIcon: null;
+        platformThumbnail: null;
+        ytToken: null;
+        ytLiveChatId: null;
+        twitchChannel: string;
+        currentGame: null;
+        currentlyLive: false;
+        viewers: null;
+    }[];
+    bohnen: Bohne[];
+    currentlyInMainContext: boolean;
+    priority: number;
+}
+
 interface V1ScheduleNormalized {
     success: boolean;
     data: {
@@ -38,32 +65,7 @@ interface V1ScheduleNormalized {
             streamExclusive: boolean;
             type: 'live' | 'vod' | 'stream';
             links: any[];
-            channelGroups: {
-                mgmtId: number;
-                type: 'talent';
-                name: string;
-                description: string;
-                channelGroupIcon: Image[];
-                channels: {
-                    mgmtId: number;
-                    channelGroupId: number;
-                    title: string | null;
-                    url: string;
-                    serviceType: 'twitch';
-                    platformId: string;
-                    platformIcon: null;
-                    platformThumbnail: null;
-                    ytToken: null;
-                    ytLiveChatId: null;
-                    twitchChannel: string;
-                    currentGame: null;
-                    currentlyLive: false;
-                    viewers: null;
-                }[];
-                bohnen: Bohne[];
-                currentlyInMainContext: boolean;
-                priority: number;
-            }[];
+            channelGroups: ChannelGroup[];
             openEnd: boolean;
             highlight: boolean;
         }[];
@@ -115,22 +117,22 @@ export async function crawler() {
         )
     ]);
 
-    const isStream = (title: string) => {
-        return title.includes('streamt');
-    };
-
     const allShowsLive = scheduleLive.data
         .map(({ elements }) => {
             return elements.map<NormalizedShow>((item) => {
                 const startDateTime = DateTime.fromISO(item.timeStart);
                 const endDateTime = DateTime.fromISO(item.timeEnd);
 
+                item.channelGroups[0].type;
+
                 return {
                     title: item.title,
                     description: item.topic,
                     startDateTime,
                     endDateTime,
-                    type: isStream(item.title) ? 'stream' : item.type,
+                    type: item.channelGroups.some(({ type }) => type === 'main')
+                        ? item.type
+                        : 'stream',
                     image: item.episodeImage,
                     bohnen: item.bohnen.map((bohne) => bohne.name)
                 };
