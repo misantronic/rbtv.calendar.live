@@ -99,10 +99,12 @@ export async function googleCalendar(calendarId: string) {
                                 dateTime: event.endDateTime.toISO(),
                                 timeZone: 'Europe/Berlin'
                             },
-                            source: {
-                                title: 'thumbnail',
-                                url: event.image
-                            }
+                            source: event.image
+                                ? {
+                                      title: 'thumbnail',
+                                      url: event.image
+                                  }
+                                : undefined
                         }
                     });
 

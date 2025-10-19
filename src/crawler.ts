@@ -170,7 +170,7 @@ export async function crawler() {
                             startDateTime,
                             endDateTime,
                             type: 'vod',
-                            image: item.showThumbnail[0].url,
+                            image: item.showThumbnail?.[0]?.url,
                             bohnen: item.bohnen.map((bohne) => bohne.name)
                         };
                     })
@@ -185,6 +185,8 @@ export async function crawler() {
 }
 
 async function fetchJSON<T = any>(url: string): Promise<T> {
+    console.log(`Fetching JSON from ${url}`);
+
     return new Promise((resolve, reject) => {
         get(url, (resp) => {
             const result: any[] = [];
